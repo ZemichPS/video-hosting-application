@@ -1,0 +1,852 @@
+openapi: 3.0.3
+info:
+  title: Video hosting application
+  description: |-
+    This application is a REST web service for managing video hosting, where users can create and manage channels, subscribe to other users' channels, and view detailed information about channels.
+
+    Link to git repository:
+    - [Video hosting application repository](https://github.com/ZemichPS/video-hosting-application)
+
+  contact:
+    email: zemichcs@gmail.com
+  version: 1.0.11
+
+servers:
+  - url: http://localhost:8081/api/v1
+tags:
+  - name: channels
+    description: Operations about Channels
+  - name: users
+    description: Operations about Users
+
+paths:
+  /channels:
+    get:
+      tags:
+        - channels
+      summary: Get channel page
+      description: ""
+      operationId: getChannelPage
+      parameters:
+        - name: page
+          in: query
+          description: "The page number."
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: "The page size."
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: name
+          in: query
+          description: "Filter by channel name"
+          required: false
+          schema:
+            type: string
+        - name: language
+          in: query
+          description: "Filter by channel language"
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: "Filter by channel category"
+          required: false
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: "Sorting criteria, e.g., name, createdAt"
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChannelPage"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ChannelPage"
+        "400":
+          description: Invalid channel name supplied
+        "404":
+          description: Channel not found
+        "500":
+          description: Server error
+
+    post:
+      tags:
+        - channels
+      summary: Create channel
+      description: ""
+      operationId: createChannel
+      requestBody:
+        description: channel object for create
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChannelCreate"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ChannelCreate"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/ChannelCreate"
+      responses:
+        "201":
+          description: Successful operation - Channel created
+          headers:
+            Location:
+              description: URL of the created channel resource
+              required: true
+              schema:
+                type: string
+                example: /api/v1/channels/java-gury
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChannelFull"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ChannelFull"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /channels/{name}:
+    get:
+      tags:
+        - channels
+      summary: Get channel by channel name
+      description: ""
+      operationId: getChannelByName
+      parameters:
+        - name: name
+          in: path
+          description: "The name of the channel to receive"
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChannelFull"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ChannelFull"
+        "400":
+          description: Invalid channel name supplied
+        "404":
+          description: Channel not found
+        "500":
+          description: Server error
+    put:
+      tags:
+        - channels
+      summary: Update channel by channel name
+      description: This can only be done by the channel owner.
+      operationId: updateChannel
+      parameters:
+        - name: name
+          in: path
+          description: the name of the channel to update over the object
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Update an existent channel in the service
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChannelUpdate"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ChannelUpdate"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/ChannelUpdate"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChannelFull"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ChannelFull"
+        "400":
+          description: Invalid chanel name supplied
+        "404":
+          description: User not found
+        "500":
+          description: Server error
+    patch:
+      tags:
+        - channels
+      summary: Partially update channel by channel name
+      description: This can only be done by channel owner user.
+      operationId: partiallUpdateChannel
+      parameters:
+        - name: name
+          in: path
+          description: the name of the channel to partiaally update over the object
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Update an existent user in the service
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChannelPartialUpdate"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ChannelPartialUpdate"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/ChannelPartialUpdate"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChannelFull"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ChannelFull"
+        "400":
+          description: Invalid channel name supplied
+        "404":
+          description: Channel not found
+        "500":
+          description: Server error
+    delete:
+      tags:
+        - channels
+      summary: Delete channel by channel name
+      description: This can only be done by channel owner user.
+      operationId: deleteChannel
+      parameters:
+        - name: name
+          in: path
+          description: The channel name that needs to be deleted
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Channel deleted successfully
+        "400":
+          description: Invalid channel name supplied
+        "404":
+          description: Channel not found
+        "500":
+          description: Server error
+
+  /users:
+    post:
+      tags:
+        - users
+      summary: Create user
+      description: ""
+      operationId: createUser
+      requestBody:
+        description: user object for create
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreate"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/UserCreate"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/UserCreate"
+      responses:
+        "201":
+          description: Successful operation - User created
+          headers:
+            Location:
+              description: URL of the created user resource
+              required: true
+              schema:
+                type: string
+                example: /api/v1/some
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserFull"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/UserFull"
+        "400":
+          description: Bad Request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /users/{username}:
+    get:
+      tags:
+        - users
+      summary: Get user by user username
+      description: ""
+      operationId: getUserByName
+      parameters:
+        - name: username
+          in: path
+          description: "The id that needs to be fetched."
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserFull"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/UserFull"
+        "400":
+          description: Invalid username supplied
+        "404":
+          description: User not found
+        "500":
+          description: Server error
+    put:
+      tags:
+        - users
+      summary: Update user by username
+      description: This can only be done by the logged in user.
+      operationId: updateUser
+      parameters:
+        - name: username
+          in: path
+          description: the name of the user whose object needs to be updated
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Update an existent user in the service
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserFull"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/UserFull"
+        "400":
+          description: Invalid username supplied
+        "404":
+          description: User not found
+        "500":
+          description: Server error
+    patch:
+      tags:
+        - users
+      summary: Partially update user by username 
+      description: This can only be done by the logged in user.
+      operationId: updateUser
+      parameters:
+        - name: username
+          in: path
+          description: the name of the user whose object needs to be partly updated
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Update an existent user in the service
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserPartialUpdate"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/UserPartialUpdate"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/UserPartialUpdate"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserFull"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/UserFull"
+        "400":
+          description: Invalid username supplied
+        "404":
+          description: User not found
+        "500":
+          description: Server error
+    delete:
+      tags:
+        - users
+      summary: Delete user by username
+      description: This can only be done by the logged in user.
+      operationId: deleteUser
+      parameters:
+        - name: username
+          in: path
+          description: The name that needs to be deleted
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: User deleted successfully
+        "400":
+          description: Invalid username supplied
+        "404":
+          description: User not found
+        "500":
+          description: Server error
+
+  /users/{username}/channels:
+    get:
+      tags:
+        - users
+      summary: Get user's channel list by user username
+      description: ''
+      operationId: getUser'sChannels
+      parameters:
+        - name: username
+          in: path
+          description: "The username that needs channels list to be fetched"
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserChannelsList"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/UserChannelsList"
+        "400":
+          description: Invalid username supplied
+        "404":
+          description: User not found
+        "500":
+          description: Server error
+          
+    post:
+      tags:
+        - users
+      summary: Subscribe to channel
+      description: ""
+      operationId: subscribeToTheChannel
+      parameters:
+        - name: username
+          in: path
+          description: the name of the user to subscribe to the channel
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: channel identifier object for subscribe
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChannelIdentifier"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ChannelIdentifier"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/ChannelIdentifier"
+      responses:
+        "200":
+          description: Successful operation - user is subscribed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChannelFull"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ChannelFull"
+        "400":
+          description: Invalid channel name supplied
+        "404":
+          description: Channel not found
+        "500":
+          description: Server error
+    
+    delete:
+      tags:
+        - users
+      summary: Unsubscribe from the channel
+      description: ''
+      operationId: unSubscribeFromTheChannel
+      parameters:
+        - name: username
+          in: path
+          description: The name of the user to unsubscribe from
+          required: true
+          schema:
+            type: string
+        - name: channel_name
+          in: query
+          description: The name of the channel to unsubscribe the user from
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Successful operation - user is unsubscribed
+        "400":
+          description: Invalid channel name supplied
+        "404":
+          description: Channel not found
+        "500":
+          description: Server error
+
+components:
+  schemas:
+    ChannelPage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChannelInfo"
+          description: List of channels for the current page
+        totalPages:
+          type: integer
+          description: Total number of pages
+        totalElements:
+          type: integer
+          description: Total number of channels
+        size:
+          type: integer
+          description: Number of records per page
+        number:
+          type: integer
+          description: Current page number
+        sort:
+          type: string
+          description: Sorting parameters
+
+    ChannelInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          description: unique channel name
+          example: Cats and pets
+        subscribers_count:
+          type: integer
+          example: 101
+        language:
+          type: string
+          description: "Main channel language"
+          example: "en"
+          enum: ["en", "ru", "fr", "es"]
+        avatar:
+          type: string
+          description: avatar filename
+          example: avatar.png
+        category:
+          type: string
+          description: category name
+          example: learning
+
+    ChannelFull:
+      type: object
+      properties:
+        name:
+          type: string
+          description: unique channel name
+          example: Cats and pets
+        author:
+          $ref: "#/components/schemas/UserAuthor"
+        description:
+          type: string
+          example: Channel about cats
+        subscribers:
+          type: array
+          description: unlimited number of subscribers
+          items:
+            $ref: "#/components/schemas/UserSubscriber"
+        creationDate:
+          type: string
+          format: date
+        language:
+          type: string
+          description: "Main channel language"
+          example: "en"
+          enum: ["en", "ru", "fr", "es"]
+        avatar:
+          type: string
+          description: avatar filename
+          example: avatar.png
+        category:
+          type: string
+          description: category name
+          example: cartoon
+
+    ChannelCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          description: unique channel name
+          example: Some new channel
+        author:
+          $ref: "#/components/schemas/UserAuthor"
+        description:
+          type: string
+          example: Channel about cats
+        language:
+          type: string
+          description: "Main channel language"
+          example: "en"
+          enum: ["en", "ru", "fr", "es"]
+        avatar:
+          type: string
+          description: avatar filename
+          example: avatar.png
+        category:
+          type: string
+          description: category name
+          example: cartoon
+      required:
+        - name
+        - author
+        - description
+        - language
+        - avatar
+        - category
+
+    ChannelUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          description: unique channel name
+          example: Some new channel
+        description:
+          type: string
+          example: Channel about cats
+        language:
+          type: string
+          description: "Main channel language"
+          example: "en"
+          enum: ["en", "ru", "fr", "es"]
+        avatar:
+          type: string
+          description: avatar filename
+          example: avatar.png
+        category:
+          type: string
+          description: category name
+          example: cartoon
+      required:
+        - name
+        - description
+        - language
+        - avatar
+        - category
+
+    ChannelPartialUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          description: unique channel name
+          example: Some new channel
+        description:
+          type: string
+          example: Channel about cats
+        language:
+          type: string
+          description: "Main channel language"
+          example: "en"
+          enum: ["en", "ru", "fr", "es"]
+        avatar:
+          type: string
+          description: avatar filename
+          example: avatar.png
+        category:
+          type: string
+          description: category name
+          example: cartoon
+
+    UserFull:
+      type: object
+      properties:
+        username:
+          type: string
+          example: theUser
+          description: Uniq user name
+        name:
+          type: string
+          example: John James
+        email:
+          type: string
+          example: john@email.com
+        subscriptions:
+          type: array
+          description: unlimited number of channels
+          items:
+            $ref: "#/components/schemas/ChannelFull"
+
+    UserAuthor:
+      type: object
+      properties:
+        username:
+          type: string
+          example: theAuthor
+          description: Uniq user name
+        name:
+          type: string
+          example: Seán McLoughlin
+
+    UserSubscriber:
+      type: object
+      properties:
+        username:
+          type: string
+          example: theSubscriber
+          description: Uniq user name
+        name:
+          type: string
+          example: Martin Duglas
+
+    UserCreate:
+      type: object
+      properties:
+        username:
+          type: string
+          example: theUser
+          description: Uniq user name
+        name:
+          type: string
+          example: John James
+        email:
+          type: string
+          example: john@email.com
+      required:
+        - username
+        - name
+        - email
+
+    UserUpdate:
+      type: object
+      properties:
+        username:
+          type: string
+          example: theUser
+          description: Uniq user name
+        name:
+          type: string
+          example: Jonnatan Doe
+        email:
+          type: string
+          example: jonnatan_doe@gmail.com
+      required:
+        - username
+        - name
+        - email
+
+    UserPartialUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Jonnatan Doe
+        email:
+          type: string
+          example: jonnatan_doe@gmail.com
+
+    ChannelIdentifier:
+      type: object
+      properties:
+        channel_name:
+          type: string
+          example: Smoorfik
+      required:
+        - channelName
+
+    UserChannelsList:
+      type: object
+      properties:
+        subscriptions:
+          type: array
+          items:
+            type: string
+            example: ["Cats and pets", "Why I still love JAVA"]
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 123
+        error:
+          type: string
+          example: "Error cause: something went wrong"
+        details:
+          type: array
+          items:
+            $ref: "#/components/schemas/DetailedCause"
+
+    DetailedCause:
+      type: object
+      properties:
+        description:
+          type: string
+          example: Detailed cause 1 is ...
