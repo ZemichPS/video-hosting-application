@@ -72,7 +72,7 @@
             }
           },
           {
-            "name": "category",
+            "name": "category_uuid",
             "in": "query",
             "description": "Filter by channel category",
             "required": false,
@@ -180,6 +180,16 @@
               }
             }
           },
+          "404": {
+            "description": "Bad Request - User (author) is nowhere to be found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Internal server error",
             "content": {
@@ -193,7 +203,7 @@
         }
       }
     },
-    "/channels/{name}": {
+    "/channels/{channel_id}": {
       "get": {
         "tags": [
           "channels"
@@ -203,9 +213,9 @@
         "operationId": "getChannelByName",
         "parameters": [
           {
-            "name": "name",
+            "name": "channel_id",
             "in": "path",
-            "description": "The name of the channel to receive",
+            "description": "The channel id of the channel to receive",
             "required": true,
             "schema": {
               "type": "string"
@@ -248,9 +258,9 @@
         "operationId": "updateChannel",
         "parameters": [
           {
-            "name": "name",
+            "name": "channel_id",
             "in": "path",
-            "description": "the name of the channel to update over the object",
+            "description": "the channel of the channel to update over the object",
             "required": true,
             "schema": {
               "type": "string"
@@ -313,9 +323,9 @@
         "operationId": "partiallUpdateChannel",
         "parameters": [
           {
-            "name": "name",
+            "name": "channel_id",
             "in": "path",
-            "description": "the name of the channel to partiaally update over the object",
+            "description": "the channel name of the channel to partiaally update over the object",
             "required": true,
             "schema": {
               "type": "string"
@@ -378,9 +388,9 @@
         "operationId": "deleteChannel",
         "parameters": [
           {
-            "name": "name",
+            "name": "channel_id",
             "in": "path",
-            "description": "The channel name that needs to be deleted",
+            "description": "The channel id that needs to be deleted",
             "required": true,
             "schema": {
               "type": "string"
@@ -390,6 +400,53 @@
         "responses": {
           "204": {
             "description": "Channel deleted successfully"
+          },
+          "400": {
+            "description": "Invalid channel name supplied"
+          },
+          "404": {
+            "description": "Channel not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/subscribers": {
+      "get": {
+        "tags": [
+          "channels"
+        ],
+        "summary": "Get channel by channel name",
+        "description": "",
+        "operationId": "getSubscribersByChannelId",
+        "parameters": [
+          {
+            "name": "channel_id",
+            "in": "path",
+            "description": "ID of the channel to get the list of subscribers from",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscribersList"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscribersList"
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid channel name supplied"
@@ -447,12 +504,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserFull"
+                  "$ref": "#/components/schemas/UserCreated"
                 }
               },
               "application/xml": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserFull"
+                  "$ref": "#/components/schemas/UserCreated"
                 }
               }
             }
@@ -480,7 +537,7 @@
         }
       }
     },
-    "/users/{username}": {
+    "/users/{user_id}": {
       "get": {
         "tags": [
           "users"
@@ -490,9 +547,9 @@
         "operationId": "getUserByName",
         "parameters": [
           {
-            "name": "username",
+            "name": "user_id",
             "in": "path",
-            "description": "The id that needs to be fetched.",
+            "description": "The user id that needs to be fetched.",
             "required": true,
             "schema": {
               "type": "string"
@@ -505,12 +562,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserFull"
+                  "$ref": "#/components/schemas/UserResponse"
                 }
               },
               "application/xml": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserFull"
+                  "$ref": "#/components/schemas/UserResponse"
                 }
               }
             }
@@ -535,9 +592,9 @@
         "operationId": "updateUser",
         "parameters": [
           {
-            "name": "username",
+            "name": "user_id",
             "in": "path",
-            "description": "the name of the user whose object needs to be updated",
+            "description": "the user id of the user whose object needs to be updated",
             "required": true,
             "schema": {
               "type": "string"
@@ -570,12 +627,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserFull"
+                  "$ref": "#/components/schemas/UserResponse"
                 }
               },
               "application/xml": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserFull"
+                  "$ref": "#/components/schemas/UserResponse"
                 }
               }
             }
@@ -600,9 +657,9 @@
         "operationId": "updateUser",
         "parameters": [
           {
-            "name": "username",
+            "name": "user_id",
             "in": "path",
-            "description": "the name of the user whose object needs to be partly updated",
+            "description": "the user id of the user whose object needs to be partly updated",
             "required": true,
             "schema": {
               "type": "string"
@@ -665,9 +722,9 @@
         "operationId": "deleteUser",
         "parameters": [
           {
-            "name": "username",
+            "name": "user_id",
             "in": "path",
-            "description": "The name that needs to be deleted",
+            "description": "The user id that needs to be deleted",
             "required": true,
             "schema": {
               "type": "string"
@@ -690,7 +747,7 @@
         }
       }
     },
-    "/users/{username}/channels": {
+    "/users/{user_id}/channels": {
       "get": {
         "tags": [
           "users"
@@ -700,9 +757,9 @@
         "operationId": "getUser'sChannels",
         "parameters": [
           {
-            "name": "username",
+            "name": "user_id",
             "in": "path",
-            "description": "The username that needs channels list to be fetched",
+            "description": "The user id that needs channels list to be fetched",
             "required": true,
             "schema": {
               "type": "string"
@@ -735,7 +792,9 @@
             "description": "Server error"
           }
         }
-      },
+      }
+    },
+    "/users/{user_id}/channels/{channel_id}": {
       "post": {
         "tags": [
           "users"
@@ -745,47 +804,36 @@
         "operationId": "subscribeToTheChannel",
         "parameters": [
           {
-            "name": "username",
+            "name": "user_id",
             "in": "path",
-            "description": "the name of the user to subscribe to the channel",
+            "description": "the user id of the user to subscribe to the channel",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "channel_id",
+            "in": "path",
+            "description": "the ID of the channel that the user needs to subscribe to",
             "required": true,
             "schema": {
               "type": "string"
             }
           }
         ],
-        "requestBody": {
-          "description": "channel identifier object for subscribe",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChannelIdentifier"
-              }
-            },
-            "application/xml": {
-              "schema": {
-                "$ref": "#/components/schemas/ChannelIdentifier"
-              }
-            },
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "$ref": "#/components/schemas/ChannelIdentifier"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "Successful operation - user is subscribed",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ChannelFull"
+                  "$ref": "#/components/schemas/UserFull"
                 }
               },
               "application/xml": {
                 "schema": {
-                  "$ref": "#/components/schemas/ChannelFull"
+                  "$ref": "#/components/schemas/UserFull"
                 }
               }
             }
@@ -794,7 +842,7 @@
             "description": "Invalid channel name supplied"
           },
           "404": {
-            "description": "Channel not found"
+            "description": "Channel or User not found"
           },
           "500": {
             "description": "Server error"
@@ -805,23 +853,23 @@
         "tags": [
           "users"
         ],
-        "summary": "Unsubscribe from the channel",
+        "summary": "Subscribe to channel",
         "description": "",
-        "operationId": "unSubscribeFromTheChannel",
+        "operationId": "unsubscribeToTheChannel",
         "parameters": [
           {
-            "name": "username",
+            "name": "user_id",
             "in": "path",
-            "description": "The name of the user to unsubscribe from",
+            "description": "the ID of the user to unsubscribe from the channel",
             "required": true,
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "channel_name",
-            "in": "query",
-            "description": "The name of the channel to unsubscribe the user from",
+            "name": "channel_id",
+            "in": "path",
+            "description": "The ID of the channel to unsubscribe the user from",
             "required": true,
             "schema": {
               "type": "string"
@@ -836,7 +884,7 @@
             "description": "Invalid channel name supplied"
           },
           "404": {
-            "description": "Channel not found"
+            "description": "Channel or User not found"
           },
           "500": {
             "description": "Server error"
@@ -857,11 +905,11 @@
             },
             "description": "List of channels for the current page"
           },
-          "totalPages": {
+          "total_pages": {
             "type": "integer",
             "description": "Total number of pages"
           },
-          "totalElements": {
+          "total_elements": {
             "type": "integer",
             "description": "Total number of channels"
           },
@@ -904,19 +952,24 @@
           },
           "avatar": {
             "type": "string",
-            "description": "avatar filename",
-            "example": "avatar.png"
+            "format": "Base64",
+            "description": "coded avatar file name",
+            "example": "iVBORw0KGgoAAAANSUhEUgAAAAUA"
           },
           "category": {
-            "type": "string",
-            "description": "category name",
-            "example": "learning"
+            "$ref": "#/components/schemas/Category"
           }
         }
       },
       "ChannelFull": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-42d3-a456-556642440000",
+            "description": "Uniq channel ID"
+          },
           "name": {
             "type": "string",
             "description": "unique channel name",
@@ -929,14 +982,7 @@
             "type": "string",
             "example": "Channel about cats"
           },
-          "subscribers": {
-            "type": "array",
-            "description": "unlimited number of subscribers",
-            "items": {
-              "$ref": "#/components/schemas/UserSubscriber"
-            }
-          },
-          "creationDate": {
+          "creation_date": {
             "type": "string",
             "format": "date"
           },
@@ -953,26 +999,33 @@
           },
           "avatar": {
             "type": "string",
-            "description": "avatar filename",
-            "example": "avatar.png"
+            "format": "base64",
+            "description": "avatar file",
+            "example": "iVBORw0KGgoAAAANSUhEUgAAAAUA..."
           },
           "category": {
-            "type": "string",
-            "description": "category name",
-            "example": "cartoon"
+            "$ref": "#/components/schemas/Category"
           }
         }
       },
       "ChannelCreate": {
         "type": "object",
         "properties": {
+          "author_id": {
+            "type": "string",
+            "description": "unique user ID",
+            "example": "123e4567-e89b-42d3-a456-556642440000"
+          },
+          "category_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "uniq category ID",
+            "example": "7e9adfbf-432d-4f17-9149-815e361de32f"
+          },
           "name": {
             "type": "string",
             "description": "unique channel name",
             "example": "Some new channel"
-          },
-          "author": {
-            "$ref": "#/components/schemas/UserAuthor"
           },
           "description": {
             "type": "string",
@@ -991,27 +1044,28 @@
           },
           "avatar": {
             "type": "string",
-            "description": "avatar filename",
-            "example": "avatar.png"
-          },
-          "category": {
-            "type": "string",
-            "description": "category name",
-            "example": "cartoon"
+            "description": "Base64 line",
+            "example": "iVBORw0KGgoAAAANSUhEUgAAA..."
           }
         },
         "required": [
+          "author_id",
+          "category_id",
           "name",
-          "author",
           "description",
           "language",
-          "avatar",
-          "category"
+          "avatar"
         ]
       },
       "ChannelUpdate": {
         "type": "object",
         "properties": {
+          "category_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "uniq category ID",
+            "example": "7e9adfbf-432d-4f17-9149-815e361de32f"
+          },
           "name": {
             "type": "string",
             "description": "unique channel name",
@@ -1034,26 +1088,27 @@
           },
           "avatar": {
             "type": "string",
-            "description": "avatar filename",
-            "example": "avatar.png"
-          },
-          "category": {
-            "type": "string",
-            "description": "category name",
-            "example": "cartoon"
+            "description": "Base64 line",
+            "example": "iVBORw0KGgoAAAANSUhEUgAAA..."
           }
         },
         "required": [
+          "category_id",
           "name",
           "description",
           "language",
-          "avatar",
-          "category"
+          "avatar"
         ]
       },
       "ChannelPartialUpdate": {
         "type": "object",
         "properties": {
+          "category_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "uniq category ID",
+            "example": "7e9adfbf-432d-4f17-9149-815e361de32f"
+          },
           "name": {
             "type": "string",
             "description": "unique channel name",
@@ -1076,19 +1131,20 @@
           },
           "avatar": {
             "type": "string",
-            "description": "avatar filename",
-            "example": "avatar.png"
-          },
-          "category": {
-            "type": "string",
-            "description": "category name",
-            "example": "cartoon"
+            "description": "Base64 line",
+            "example": "iVBORw0KGgoAAAANSUhEUgAAA..."
           }
         }
       },
       "UserFull": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-42d3-a456-556642440000",
+            "description": "Uniq user ID"
+          },
           "username": {
             "type": "string",
             "example": "theUser",
@@ -1111,17 +1167,38 @@
           }
         }
       },
-      "UserAuthor": {
+      "UserResponse": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-42d3-a456-556642440000",
+            "description": "Uniq user ID"
+          },
           "username": {
             "type": "string",
-            "example": "theAuthor",
+            "example": "theUser",
             "description": "Uniq user name"
           },
           "name": {
             "type": "string",
-            "example": "Seán McLoughlin"
+            "example": "John James"
+          },
+          "email": {
+            "type": "string",
+            "example": "john@email.com"
+          }
+        }
+      },
+      "UserAuthor": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-42d3-a456-556642440000",
+            "description": "Uniq user ID"
           }
         }
       },
@@ -1132,10 +1209,6 @@
             "type": "string",
             "example": "theSubscriber",
             "description": "Uniq user name"
-          },
-          "name": {
-            "type": "string",
-            "example": "Martin Duglas"
           }
         }
       },
@@ -1161,6 +1234,30 @@
           "name",
           "email"
         ]
+      },
+      "UserCreated": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-42d3-a456-556642440000",
+            "description": "Uniq user ID"
+          },
+          "username": {
+            "type": "string",
+            "example": "theUser",
+            "description": "Uniq user name"
+          },
+          "name": {
+            "type": "string",
+            "example": "John James"
+          },
+          "email": {
+            "type": "string",
+            "example": "john@email.com"
+          }
+        }
       },
       "UserUpdate": {
         "type": "object",
@@ -1198,30 +1295,53 @@
           }
         }
       },
-      "ChannelIdentifier": {
-        "type": "object",
-        "properties": {
-          "channel_name": {
-            "type": "string",
-            "example": "Smoorfik"
-          }
-        },
-        "required": [
-          "channelName"
-        ]
-      },
       "UserChannelsList": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "channel_id": {
+              "type": "string",
+              "format": "uuid",
+              "example": "44d67918-2fe3-4c63-bbb2-e1bb16c91858"
+            },
+            "channel_name": {
+              "type": "string",
+              "example": "Java Learning"
+            }
+          }
+        }
+      },
+      "SubscribersList": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "user_id": {
+              "type": "string",
+              "format": "uuid",
+              "example": "44d67918-2fe3-4c63-bbb2-e1bb16c91858"
+            },
+            "username": {
+              "type": "string",
+              "example": "Mikle Madison"
+            }
+          }
+        }
+      },
+      "Category": {
         "type": "object",
         "properties": {
-          "subscriptions": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "example": [
-                "Cats and pets",
-                "Why I still love JAVA"
-              ]
-            }
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-42d3-a456-556642440000",
+            "description": "Uniq category ID"
+          },
+          "name": {
+            "type": "string",
+            "example": "cartoon",
+            "description": "unique category name"
           }
         }
       },
